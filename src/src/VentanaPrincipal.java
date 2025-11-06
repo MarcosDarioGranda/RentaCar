@@ -13,10 +13,13 @@ public class VentanaPrincipal extends JFrame {
         setLayout(new BorderLayout());
 
         // 🔹 Título superior
-        JLabel titulo = new JLabel("🚗 RentaCar", SwingConstants.CENTER);
-        titulo.setFont(new Font("Arial", Font.BOLD, 28));
+        JLabel titulo = new JLabel("RentaCar", SwingConstants.CENTER);
+        titulo.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        titulo.setForeground(new Color(40, 70, 130));
+        titulo.setBorder(BorderFactory.createEmptyBorder(15, 0, 15, 0));
         add(titulo, BorderLayout.NORTH);
-
+        
+        
         // 🔹 Panel central con texto + imagen
         JPanel panelCentro = new JPanel(new BorderLayout());
         panelCentro.setBackground(Color.WHITE);
@@ -67,6 +70,10 @@ public class VentanaPrincipal extends JFrame {
         menuBar.add(menuSistema);
 
         setJMenuBar(menuBar);
+    }
+    
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new VentanaPrincipal().setVisible(true));
     }
 
 }
