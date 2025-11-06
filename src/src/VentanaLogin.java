@@ -2,6 +2,8 @@ package src;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class VentanaLogin extends JFrame {
 
@@ -21,8 +23,8 @@ public class VentanaLogin extends JFrame {
         JButton btnLogin = new JButton("Iniciar Sesión");
         JButton btnRegistro = new JButton("Registrarse");
 
-        // Acción del botón de login
-        btnLogin.addActionListener(e -> {
+        // 🔹 Método auxiliar para ejecutar el login
+        Runnable ejecutarLogin = () -> {
             String usuario = tUsuario.getText();
             String contrasena = new String(tContrasena.getPassword());
 
@@ -33,13 +35,30 @@ public class VentanaLogin extends JFrame {
             } else {
                 JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos.");
             }
-        });
+        };
+
+        // Acción del botón de login
+        btnLogin.addActionListener(e -> ejecutarLogin.run());
 
         // Acción del botón de registro
         btnRegistro.addActionListener(e -> new VentanaRegistro().setVisible(true));
 
-        add(new JLabel("Usuario:")); add(tUsuario);
-        add(new JLabel("Contraseña:")); add(tContrasena);
+        // 🔹 Evento de teclado: presionar Enter ejecuta el login
+        KeyAdapter keyEnterListener = new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    ejecutarLogin.run();
+                }
+            }
+        };
+
+        // Añadimos el listener a los campos de texto
+        tUsuario.addKeyListener(keyEnterListener);
+        tContrasena.addKeyListener(keyEnterListener);
+
+        add(lUsuario); add(tUsuario);
+        add(lContrasena); add(tContrasena);
         add(btnLogin); add(btnRegistro);
     }
 
@@ -47,4 +66,3 @@ public class VentanaLogin extends JFrame {
         SwingUtilities.invokeLater(() -> new VentanaLogin().setVisible(true));
     }
 }
-
