@@ -12,32 +12,61 @@ public class VentanaPrincipal extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
+        // 🔹 Título superior
         JLabel titulo = new JLabel("🚗 RentaCar", SwingConstants.CENTER);
-        titulo.setFont(new Font("Arial", Font.BOLD, 24));
+        titulo.setFont(new Font("Arial", Font.BOLD, 28));
         add(titulo, BorderLayout.NORTH);
 
-        JPanel panelBotones = new JPanel(new GridLayout(4, 1, 10, 10));
-        panelBotones.setBorder(BorderFactory.createEmptyBorder(40, 150, 40, 150));
+        // 🔹 Panel central con texto + imagen
+        JPanel panelCentro = new JPanel(new BorderLayout());
+        panelCentro.setBackground(Color.WHITE);
 
-        JButton btnVer = new JButton("Ver Inventario");
-        JButton btnAgregar = new JButton("Agregar Coche");
-        JButton btnVender = new JButton("Registrar Venta");
-        JButton btnSalir = new JButton("Salir");
+        // Texto superior
+        JLabel textoArriba = new JLabel("Bienvenido a RentaCar", SwingConstants.CENTER);
+        textoArriba.setFont(new Font("SansSerif", Font.BOLD, 18));
+        panelCentro.add(textoArriba, BorderLayout.NORTH);
 
-        btnVer.addActionListener(e -> new VentanaInventario().setVisible(true));
-        btnAgregar.addActionListener(e -> new VentanaAgregarCoche().setVisible(true));
-        btnVender.addActionListener(e -> new VentanaRegistrarVenta().setVisible(true));
-        btnSalir.addActionListener(e -> System.exit(0));
+        // Imagen central (40% más grande)
+        ImageIcon icono = new ImageIcon(getClass().getResource("/img/portada.jpg"));
+        Image imagenEscalada = icono.getImage().getScaledInstance(280, 210, Image.SCALE_SMOOTH);
+        JLabel imagenLabel = new JLabel(new ImageIcon(imagenEscalada), SwingConstants.CENTER);
+        panelCentro.add(imagenLabel, BorderLayout.CENTER);
 
-        panelBotones.add(btnVer);
-        panelBotones.add(btnAgregar);
-        panelBotones.add(btnVender);
-        panelBotones.add(btnSalir);
+        // Texto inferior
+        JLabel textoAbajo = new JLabel("Gestión de vehículos - Venta y Reventa", SwingConstants.CENTER);
+        textoAbajo.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        panelCentro.add(textoAbajo, BorderLayout.SOUTH);
 
-        add(panelBotones, BorderLayout.CENTER);
+        add(panelCentro, BorderLayout.CENTER);
+
+        // 🔹 Barra de menú
+        JMenuBar menuBar = new JMenuBar();
+
+        JMenu menuCoches = new JMenu("Coches");
+        JMenu menuSistema = new JMenu("Sistema");
+
+        JMenuItem itemVer = new JMenuItem("Ver Inventario");
+        JMenuItem itemAgregar = new JMenuItem("Agregar Coche");
+        JMenuItem itemVender = new JMenuItem("Registrar Venta");
+        JMenuItem itemSalir = new JMenuItem("Salir");
+
+        // Acciones
+        itemVer.addActionListener(e -> new VentanaInventario().setVisible(true));
+        itemAgregar.addActionListener(e -> new VentanaAgregarCoche().setVisible(true));
+        itemVender.addActionListener(e -> new VentanaRegistrarVenta().setVisible(true));
+        itemSalir.addActionListener(e -> System.exit(0));
+
+        // Añadir ítems
+        menuCoches.add(itemVer);
+        menuCoches.add(itemAgregar);
+        menuCoches.add(itemVender);
+        menuSistema.add(itemSalir);
+
+        // Añadir menús
+        menuBar.add(menuCoches);
+        menuBar.add(menuSistema);
+
+        setJMenuBar(menuBar);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new VentanaPrincipal().setVisible(true));
-    }
 }
