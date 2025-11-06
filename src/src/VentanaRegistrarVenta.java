@@ -11,17 +11,17 @@ public class VentanaRegistrarVenta extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        // 🔹 Panel principal con márgenes
+        // Panel principal con márgenes
         JPanel panelPrincipal = new JPanel(new BorderLayout());
         panelPrincipal.setBorder(BorderFactory.createEmptyBorder(20, 25, 20, 25));
 
-        // 🔹 Título superior
-        JLabel titulo = new JLabel("🧾 Registrar nueva venta", SwingConstants.CENTER);
+        //Título superior
+        JLabel titulo = new JLabel("Registrar nueva venta", SwingConstants.CENTER);
         titulo.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titulo.setBorder(BorderFactory.createEmptyBorder(10, 0, 20, 0));
         panelPrincipal.add(titulo, BorderLayout.NORTH);
 
-        // 🔹 Panel del formulario con 5 campos
+        //Panel del formulario con 5 campos
         JPanel panelFormulario = new JPanel(new GridLayout(5, 2, 10, 10));
 
         JLabel lCodigo = new JLabel("Matricula:");
