@@ -95,22 +95,43 @@ public class VentanaInventario extends JFrame {
 
                     // Imagen del coche según el código
                     JLabel lblImagen = new JLabel("", SwingConstants.CENTER);
-                    lblImagen.setPreferredSize(new Dimension(200, 200));
+                    lblImagen.setPreferredSize(new Dimension(250, 200));
 
-                    // 📷 Cargar imagen automáticamente según el código
-                    String rutaImagen = "src/img/" + codigo + ".jpg";
+                    //Hilo para alternar las imagenes de cada coche
+                    Thread hiloImagenes = new Thread(() -> {
+                        System.out.println("Hilo iniciado");
+                        int index = 1;
+                        while (ventanaDetalles.isVisible()) {
+                            try {
+                                String ruta = "/img/" + codigo + "_" + index + ".jpg";
+                                java.net.URL url = getClass().getResource(ruta);
 
-                    File archivoImagen = new File(rutaImagen);
-                    ImageIcon icon;
+                                System.out.println("Intentando cargar: " + ruta + 
+                                    " -> " + (url != null ? "ENCONTRADA" : "NO ENCONTRADA"));
 
-                    if (archivoImagen.exists()) {
-                        icon = new ImageIcon(rutaImagen);
-                    } else {
-                        icon = new ImageIcon("src/img/default.jpg");
-                    }
+                                ImageIcon icon;
+                                if (url != null) {
+                                    icon = new ImageIcon(url);
+                                } else {
+                                    icon = new ImageIcon(getClass().getResource("/img/default.jpg"));
+                                }
 
-                    Image img = icon.getImage().getScaledInstance(200, 150, Image.SCALE_SMOOTH);
-                    lblImagen.setIcon(new ImageIcon(img));
+                                Image img = icon.getImage().getScaledInstance(250, 180, Image.SCALE_SMOOTH);
+                                lblImagen.setIcon(new ImageIcon(img));
+
+                                index++;
+                                if (index > 3) index = 1;
+                                Thread.sleep(2000);
+
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    });
+
+
+
+
                     
                     //Panel inferior con botón de más detalles
                     JPanel panelBoton = new JPanel();
@@ -151,7 +172,9 @@ public class VentanaInventario extends JFrame {
                     ventanaDetalles.add(panelDatos, BorderLayout.WEST);
                     ventanaDetalles.add(lblImagen, BorderLayout.EAST);
                     ventanaDetalles.add(panelBoton, BorderLayout.SOUTH);
+                    
                     ventanaDetalles.setVisible(true);
+                    hiloImagenes.start();
                 }
             }
         });
