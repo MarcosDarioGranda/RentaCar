@@ -111,9 +111,46 @@ public class VentanaInventario extends JFrame {
 
                     Image img = icon.getImage().getScaledInstance(200, 150, Image.SCALE_SMOOTH);
                     lblImagen.setIcon(new ImageIcon(img));
+                    
+                    //Panel inferior con botón de más detalles
+                    JPanel panelBoton = new JPanel();
+                    JButton btnMasDetalles = new JButton("Más detalles");
+                    panelBoton.add(btnMasDetalles);
+
+                    // Evento del botón
+                    btnMasDetalles.addActionListener(ev -> {
+                        // Crear segundo diálogo
+                        JDialog dialogoTecnico = new JDialog(ventanaDetalles, "Ficha técnica", true);
+                        dialogoTecnico.setSize(400, 250);
+                        dialogoTecnico.setLocationRelativeTo(ventanaDetalles);
+                        dialogoTecnico.setLayout(new BorderLayout());
+
+                        // Panel de especificaciones técnicas
+                        JPanel panelFicha = new JPanel(new GridLayout(5, 1, 5, 5));
+                        panelFicha.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+                        // Ejemplo de datos técnicos (se podran cargar de una BD o archivo)
+                        panelFicha.add(new JLabel("Cilindrada: 1.8 L"));
+                        panelFicha.add(new JLabel("Potencia: 140 CV"));
+                        panelFicha.add(new JLabel("Consumo: 6.2 L/100km"));
+                        panelFicha.add(new JLabel("Batalla: 2700 mm"));
+                        panelFicha.add(new JLabel("Transmisión: Manual 6V"));
+
+                        dialogoTecnico.add(panelFicha, BorderLayout.CENTER);
+
+                        JButton btnCerrar = new JButton("Cerrar");
+                        btnCerrar.addActionListener(e2 -> dialogoTecnico.dispose());
+                        JPanel panelCerrar = new JPanel();
+                        panelCerrar.add(btnCerrar);
+
+                        dialogoTecnico.add(panelCerrar, BorderLayout.SOUTH);
+                        dialogoTecnico.setVisible(true);
+                    });
+
 
                     ventanaDetalles.add(panelDatos, BorderLayout.WEST);
                     ventanaDetalles.add(lblImagen, BorderLayout.EAST);
+                    ventanaDetalles.add(panelBoton, BorderLayout.SOUTH);
                     ventanaDetalles.setVisible(true);
                 }
             }
