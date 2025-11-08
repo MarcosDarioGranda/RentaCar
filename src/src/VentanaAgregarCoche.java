@@ -88,9 +88,15 @@ public class VentanaAgregarCoche extends JFrame {
                 return;
             }
 
+            // ✅ Comprobación simple del formato de matrícula (4 números + 3 letras)
+            if (!codigo.matches("\\d{4}[A-Z]{3}")) {
+                JOptionPane.showMessageDialog(this, "Formato de matrícula incorrecta (ejemplo: 1234ABC).", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             JOptionPane.showMessageDialog(this,
                     "Coche agregado correctamente:\n\n" +
-                            "Código: " + codigo + "\n" +
+                            "Matrícula: " + codigo + "\n" +
                             "Marca: " + marca + "\n" +
                             "Modelo: " + modelo + "\n" +
                             "Año: " + anio + "\n" +
@@ -100,6 +106,7 @@ public class VentanaAgregarCoche extends JFrame {
 
             dispose();
         });
+
 
         btnCancelar.addActionListener(e -> dispose());
 
