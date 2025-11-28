@@ -1,19 +1,20 @@
 package src;
 
 import javax.swing.table.AbstractTableModel;
+import java.util.List;
 
 public class ModeloTablaInventario extends AbstractTableModel {
 
-    private String[] columnas = {"Marca", "Modelo", "Año", "Precio (€)", "Matrícula"};
-    private Object[][] datos;
+    private final String[] columnas = {"Marca", "Modelo", "Año", "Precio (€)", "Matrícula"};
+    private List<Coche> coches;
 
-    public ModeloTablaInventario(Object[][] datos) {
-        this.datos = datos;
+    public ModeloTablaInventario(List<Coche> coches) {
+        this.coches = coches;
     }
 
     @Override
     public int getRowCount() {
-        return datos.length;
+        return coches.size();
     }
 
     @Override
@@ -23,7 +24,15 @@ public class ModeloTablaInventario extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        return datos[rowIndex][columnIndex];
+        Coche c = coches.get(rowIndex);
+        return switch (columnIndex) {
+            case 0 -> c.getMarca();
+            case 1 -> c.getModelo();
+            case 2 -> c.getAnio();
+            case 3 -> c.getPrecio();
+            case 4 -> c.getMatricula();
+            default -> null;
+        };
     }
 
     @Override
@@ -33,14 +42,15 @@ public class ModeloTablaInventario extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return false;  // No editable
+        return false;
     }
 
-    public Object[][] getDatos() {
-        return datos;
+    public void setCoches(List<Coche> coches) {
+        this.coches = coches;
+        fireTableDataChanged();
     }
 
     public String getMatricula(int fila) {
-        return datos[fila][4].toString();
+        return coches.get(fila).getMatricula();
     }
 }

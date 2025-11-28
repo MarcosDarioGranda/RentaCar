@@ -18,24 +18,20 @@ public class VentanaPrincipal extends JFrame {
         titulo.setForeground(new Color(40, 70, 130));
         titulo.setBorder(BorderFactory.createEmptyBorder(15, 0, 15, 0));
         add(titulo, BorderLayout.NORTH);
-        
-        
+
         // 🔹 Panel central con texto + imagen
         JPanel panelCentro = new JPanel(new BorderLayout());
         panelCentro.setBackground(Color.WHITE);
 
-        // Texto superior
         JLabel textoArriba = new JLabel("Bienvenido a RentaCar", SwingConstants.CENTER);
         textoArriba.setFont(new Font("SansSerif", Font.BOLD, 18));
         panelCentro.add(textoArriba, BorderLayout.NORTH);
 
-        // Imagen central (40% más grande)
         ImageIcon icono = new ImageIcon(getClass().getResource("/img/portada.jpg"));
         Image imagenEscalada = icono.getImage().getScaledInstance(280, 210, Image.SCALE_SMOOTH);
         JLabel imagenLabel = new JLabel(new ImageIcon(imagenEscalada), SwingConstants.CENTER);
         panelCentro.add(imagenLabel, BorderLayout.CENTER);
 
-        // Texto inferior
         JLabel textoAbajo = new JLabel("Gestión de vehículos - Venta y Reventa", SwingConstants.CENTER);
         textoAbajo.setFont(new Font("SansSerif", Font.PLAIN, 14));
         panelCentro.add(textoAbajo, BorderLayout.SOUTH);
@@ -53,10 +49,13 @@ public class VentanaPrincipal extends JFrame {
         JMenuItem itemVender = new JMenuItem("Registrar Venta");
         JMenuItem itemSalir = new JMenuItem("Salir");
 
+        // 🔹 Crear ventana inventario
+        VentanaInventario ventanaInventario = new VentanaInventario();
+
         // Acciones
-        itemVer.addActionListener(e -> new VentanaInventario().setVisible(true));
-        itemAgregar.addActionListener(e -> new VentanaAgregarCoche().setVisible(true));
-        itemVender.addActionListener(e -> new VentanaRegistrarVenta().setVisible(true));
+        itemVer.addActionListener(e -> ventanaInventario.setVisible(true));
+        itemAgregar.addActionListener(e -> new VentanaAgregarCoche(ventanaInventario).setVisible(true));
+        itemVender.addActionListener(e -> JOptionPane.showMessageDialog(this,"Funcionalidad no implementada aún."));
         itemSalir.addActionListener(e -> System.exit(0));
 
         // Añadir ítems
@@ -71,6 +70,4 @@ public class VentanaPrincipal extends JFrame {
 
         setJMenuBar(menuBar);
     }
-
-
 }

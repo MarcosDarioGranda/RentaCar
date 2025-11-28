@@ -14,24 +14,20 @@ public class VentanaLogin extends JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
 
-        // Panel principal con fondo y márgenes
         JPanel panelPrincipal = new JPanel(new BorderLayout());
         panelPrincipal.setBackground(new Color(245, 247, 250));
         panelPrincipal.setBorder(BorderFactory.createEmptyBorder(25, 30, 25, 30));
 
-        // Título
         JLabel titulo = new JLabel("Inicio de Sesión", SwingConstants.CENTER);
         titulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
         titulo.setForeground(new Color(40, 70, 130));
         titulo.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
 
-        // Panel del formulario
         JPanel formulario = new JPanel(new GridLayout(2, 2, 10, 10));
         formulario.setOpaque(false);
 
         JLabel lUsuario = new JLabel("Usuario:");
         JTextField tUsuario = new JTextField();
-
         JLabel lContrasena = new JLabel("Contraseña:");
         JPasswordField tContrasena = new JPasswordField();
 
@@ -44,7 +40,6 @@ public class VentanaLogin extends JFrame {
         formulario.add(lUsuario); formulario.add(tUsuario);
         formulario.add(lContrasena); formulario.add(tContrasena);
 
-        //  Panel de botones
         JPanel botones = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 15));
         botones.setOpaque(false);
 
@@ -68,12 +63,12 @@ public class VentanaLogin extends JFrame {
         botones.add(btnLogin);
         botones.add(btnRegistro);
 
-        // 🔹 Método auxiliar para ejecutar el login
         Runnable ejecutarLogin = () -> {
             String usuario = tUsuario.getText();
             String contrasena = new String(tContrasena.getPassword());
 
-            if (usuario.equals("admin") && contrasena.equals("1234")) {
+            GestorBD gestor = new GestorBD();
+            if (gestor.validarUsuario(usuario, contrasena)) {
                 JOptionPane.showMessageDialog(this, "Inicio de sesión correcto. ¡Bienvenido a RentaCar!");
                 dispose();
                 new VentanaPrincipal().setVisible(true);
@@ -82,11 +77,22 @@ public class VentanaLogin extends JFrame {
             }
         };
 
-        // Acción de los botones
         btnLogin.addActionListener(e -> ejecutarLogin.run());
-        btnRegistro.addActionListener(e -> new VentanaRegistro().setVisible(true));
 
-        // 🔹 Enter ejecuta el login
+        btnRegistro.addActionListener(e -> {
+            String usuario = JOptionPane.showInputDialog(this, "Introduce tu usuario:");
+            String contrasena = JOptionPane.showInputDialog(this, "Introduce tu contraseña:");
+
+            if (usuario != null && contrasena != null && !usuario.isEmpty() && !contrasena.isEmpty()) {
+                GestorBD gestor = new GestorBD();
+                if (gestor.insertarUsuario(usuario, contrasena)) {
+                    JOptionPane.showMessageDialog(this, "Usuario registrado correctamente.");
+                } else {
+                    JOptionPane.showMessageDialog(this, "El usuario ya existe.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
         KeyAdapter keyEnterListener = new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -99,7 +105,6 @@ public class VentanaLogin extends JFrame {
         tUsuario.addKeyListener(keyEnterListener);
         tContrasena.addKeyListener(keyEnterListener);
 
-        // 🧩 Estructura final
         panelPrincipal.add(titulo, BorderLayout.NORTH);
         panelPrincipal.add(formulario, BorderLayout.CENTER);
         panelPrincipal.add(botones, BorderLayout.SOUTH);

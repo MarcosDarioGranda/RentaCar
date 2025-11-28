@@ -5,26 +5,30 @@ import java.awt.*;
 
 public class VentanaRegistrarVenta extends JFrame {
 
+    private final GestorBD gestor;
+
     public VentanaRegistrarVenta() {
         setTitle("Registrar Venta - RentaCar");
         setSize(420, 380);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
+        gestor = new GestorBD(); // Instancia para acceder a la BD
+
         // Panel principal con márgenes
         JPanel panelPrincipal = new JPanel(new BorderLayout());
         panelPrincipal.setBorder(BorderFactory.createEmptyBorder(20, 25, 20, 25));
 
-        //Título superior
+        // Título superior
         JLabel titulo = new JLabel("Registrar nueva venta", SwingConstants.CENTER);
         titulo.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titulo.setBorder(BorderFactory.createEmptyBorder(10, 0, 20, 0));
         panelPrincipal.add(titulo, BorderLayout.NORTH);
 
-        //Panel del formulario con 5 campos
+        // Panel del formulario con 5 campos
         JPanel panelFormulario = new JPanel(new GridLayout(5, 2, 10, 10));
 
-        JLabel lCodigo = new JLabel("Matricula:");
+        JLabel lCodigo = new JLabel("Matrícula:");
         JTextField tCodigo = new JTextField();
 
         JLabel lCliente = new JLabel("Cliente:");
@@ -39,7 +43,7 @@ public class VentanaRegistrarVenta extends JFrame {
         JLabel lImporte = new JLabel("Importe (€):");
         JTextField tImporte = new JTextField();
 
-        // 🔹 Fuente uniforme
+        // Fuente uniforme
         Font fontCampos = new Font("Segoe UI", Font.PLAIN, 14);
         for (JLabel label : new JLabel[]{lCodigo, lCliente, lVehiculo, lDNI, lImporte}) {
             label.setFont(fontCampos);
@@ -76,34 +80,45 @@ public class VentanaRegistrarVenta extends JFrame {
 
         // Acción del botón Registrar
         btnRegistrar.addActionListener(e -> {
-            String codigo = tCodigo.getText().trim();
+            String matricula = tCodigo.getText().trim();
             String cliente = tCliente.getText().trim();
             String vehiculo = tVehiculo.getText().trim();
             String dni = tDNI.getText().trim();
-            String importe = tImporte.getText().trim();
+            String importeStr = tImporte.getText().trim();
 
-            if (codigo.isEmpty() || cliente.isEmpty() || vehiculo.isEmpty() || dni.isEmpty() || importe.isEmpty()) {
+            if (matricula.isEmpty() || cliente.isEmpty() || vehiculo.isEmpty() || dni.isEmpty() || importeStr.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Por favor, completa todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            JOptionPane.showMessageDialog(this,
-                    "✅ Venta registrada correctamente:\n\n" +
-                            "Código coche: " + codigo + "\n" +
-                            "Cliente: " + cliente + "\n" +
-                            "Vehículo: " + vehiculo + "\n" +
-                            "DNI: " + dni + "\n" +
-                            "Importe: " + importe + " €",
-                    "Registro exitoso",
-                    JOptionPane.INFORMATION_MESSAGE);
+            try {
+                double importe = Double.parseDouble(importeStr);
 
-            dispose();
+                // Crear objeto Venta
+                Venta venta = new Venta(matricula, cliente, vehiculo, dni, importe);
+
+                // Registrar en la base de datos
+                if (gestor.registrarVenta(venta)) {
+                    JOptionPane.showMessageDialog(this,
+                            "✅ Venta registrada correctamente en la base de datos.",
+                            "Registro exitoso",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    dispose();
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "Error al registrar la venta.",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Importe inválido.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         });
 
-        //  Acción botón Cancelar
+        // Acción botón Cancelar
         btnCancelar.addActionListener(e -> dispose());
 
         add(panelPrincipal);
     }
-
 }

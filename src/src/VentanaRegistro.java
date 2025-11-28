@@ -5,12 +5,16 @@ import java.awt.*;
 
 public class VentanaRegistro extends JFrame {
 
+    private final GestorBD gestor;
+
     public VentanaRegistro() {
         setTitle("Registro - RentaCar");
         setSize(450, 400);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setResizable(false);
+
+        gestor = new GestorBD(); // Instancia de la BD
 
         // Panel principal con fondo suave y márgenes
         JPanel panelPrincipal = new JPanel(new BorderLayout());
@@ -24,7 +28,7 @@ public class VentanaRegistro extends JFrame {
         titulo.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
 
         // Panel del formulario
-        JPanel formulario = new JPanel(new GridLayout(5, 2, 10, 10));
+        JPanel formulario = new JPanel(new GridLayout(4, 2, 10, 10));
         formulario.setOpaque(false);
 
         JLabel lUsuario = new JLabel("Usuario:");
@@ -76,10 +80,10 @@ public class VentanaRegistro extends JFrame {
         btnCancelar.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
         btnCancelar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        // Lógica de botones
+        // Lógica de registro
         btnRegistrar.addActionListener(e -> {
-            String usuario = tUsuario.getText();
-            String correo = tCorreo.getText();
+            String usuario = tUsuario.getText().trim();
+            String correo = tCorreo.getText().trim();
             String contrasena = new String(tContrasena.getPassword());
             String confirmar = new String(tConfirmar.getPassword());
 
@@ -93,13 +97,17 @@ public class VentanaRegistro extends JFrame {
                 return;
             }
 
-            JOptionPane.showMessageDialog(this,
-                    "Usuario registrado correctamente:\n" +
-                            "Usuario: " + usuario + "\n" +
-                            "Correo: " + correo,
-                    "Registro exitoso", JOptionPane.INFORMATION_MESSAGE);
-
-            dispose();
+            // Intentar registrar en la base de datos
+            if (gestor.insertarUsuario(usuario, contrasena)) {
+                JOptionPane.showMessageDialog(this,
+                        "Usuario registrado correctamente:\nUsuario: " + usuario + "\nCorreo: " + correo,
+                        "Registro exitoso", JOptionPane.INFORMATION_MESSAGE);
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "El usuario ya existe. Elige otro nombre de usuario.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
         });
 
         btnCancelar.addActionListener(e -> dispose());
@@ -107,12 +115,11 @@ public class VentanaRegistro extends JFrame {
         botones.add(btnRegistrar);
         botones.add(btnCancelar);
 
-        // 🧩 Estructura final
+        // Estructura final
         panelPrincipal.add(titulo, BorderLayout.NORTH);
         panelPrincipal.add(formulario, BorderLayout.CENTER);
         panelPrincipal.add(botones, BorderLayout.SOUTH);
 
         add(panelPrincipal);
     }
-
 }

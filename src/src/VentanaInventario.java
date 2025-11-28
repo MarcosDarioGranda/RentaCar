@@ -5,74 +5,69 @@ import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 public class VentanaInventario extends JFrame {
 
+    private ModeloTablaInventario modelo;
+    private JTable tabla;
+
     public VentanaInventario() {
         setTitle("Inventario - RentaCar");
-        setSize(500, 300);
+        setSize(600, 350);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        // Datos EXACTOS, solo cambio "Código" → "Matrícula" porque tu modelo lo pide
-        Object[][] datos = {
-                {"Toyota", "Corolla", 2020, 15000, "C001"},
-                {"BMW", "320d", 2019, 23000, "C002"},
-                {"Audi", "A3", 2021, 25000, "C003"},
-                {"Tesla", "Model 3", 2023, 35000, "C004"}
-        };
+        // 1️⃣ Obtener coches desde BD
+        GestorBD gestor = new GestorBD();
+        List<Coche> coches = gestor.obtenerCoches();
 
-        // ⭐ USAMOS TU MODELO
-        ModeloTablaInventario modelo = new ModeloTablaInventario(datos);
+        // 2️⃣ Crear modelo y tabla
+        modelo = new ModeloTablaInventario(coches);
+        tabla = new JTable(modelo);
 
-        JTable tabla = new JTable(modelo);
-
-        // Ocultar la columna de Matrícula (columna 4)
+        // 3️⃣ Ocultar columna matrícula
         tabla.removeColumn(tabla.getColumnModel().getColumn(4));
 
-        // Renderer de colores
+        // 4️⃣ Renderer de colores según precio
         tabla.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
                                                            boolean isSelected, boolean hasFocus,
                                                            int row, int column) {
-
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
                 Object precioObj = table.getValueAt(row, 3);
                 if (precioObj instanceof Number) {
-                    int precio = ((Number) precioObj).intValue();
-
-                    if (precio < 20000)
-                        c.setBackground(new Color(144, 238, 144));
-                    else if (precio <= 30000)
-                        c.setBackground(new Color(255, 255, 153));
-                    else
-                        c.setBackground(new Color(255, 160, 122));
+                    int precio = ((Number) precioObj).intValue(); // ⚡ Soluciona ClassCastException
+                    if (precio < 20000) c.setBackground(new Color(144, 238, 144));
+                    else if (precio <= 30000) c.setBackground(new Color(255, 255, 153));
+                    else c.setBackground(new Color(255, 160, 122));
                 }
 
-                if (isSelected)
-                    c.setBackground(new Color(173, 216, 230));
+                if (isSelected) c.setBackground(new Color(173, 216, 230));
 
                 setHorizontalAlignment(SwingConstants.CENTER);
                 return c;
             }
         });
 
-        // Evento: doble clic
+        // 5️⃣ Configuración tabla
+        tabla.setRowHeight(25);
+        tabla.getTableHeader().setReorderingAllowed(false);
+        tabla.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+        // 6️⃣ Doble clic para detalles
         tabla.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2 && tabla.getSelectedRow() != -1) {
-
                     int fila = tabla.getSelectedRow();
 
                     String marca = tabla.getValueAt(fila, 0).toString();
                     String modeloCoche = tabla.getValueAt(fila, 1).toString();
-                    int anio = (int) tabla.getValueAt(fila, 2);
-                    int precio = (int) tabla.getValueAt(fila, 3);
-
-                    // ⭐ Recuperar matrícula desde TU MODELO
+                    int anio = ((Number) tabla.getValueAt(fila, 2)).intValue();
+                    int precio = ((Number) tabla.getValueAt(fila, 3)).intValue();
                     String matricula = modelo.getMatricula(fila);
 
                     // Ventana detalles
@@ -93,41 +88,34 @@ public class VentanaInventario extends JFrame {
                     JLabel lblImagen = new JLabel("", SwingConstants.CENTER);
                     lblImagen.setPreferredSize(new Dimension(250, 200));
 
-                    // ⭐ HILO DE IMÁGENES (NO TOCADO)
+                    // Hilo de imágenes
                     Thread hiloImagenes = new Thread(() -> {
                         int index = 1;
                         while (ventanaDetalles.isVisible()) {
                             try {
                                 String ruta = "/img/" + matricula + "_" + index + ".jpg";
-
                                 java.net.URL url = getClass().getResource(ruta);
-
-                                ImageIcon icon;
-                                if (url != null) {
-                                    icon = new ImageIcon(url);
-                                } else {
-                                    icon = new ImageIcon(getClass().getResource("/img/default.jpg"));
-                                }
+                                ImageIcon icon = (url != null) ? new ImageIcon(url) :
+                                        new ImageIcon(getClass().getResource("/img/default.jpg"));
 
                                 Image img = icon.getImage().getScaledInstance(250, 180, Image.SCALE_SMOOTH);
                                 lblImagen.setIcon(new ImageIcon(img));
 
                                 index++;
                                 if (index > 3) index = 1;
-
                                 Thread.sleep(2000);
-
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
                         }
                     });
 
+                    // Panel botón "Más detalles"
                     JPanel panelBoton = new JPanel();
                     JButton btnMasDetalles = new JButton("Más detalles");
                     panelBoton.add(btnMasDetalles);
 
-                    btnMasDetalles.addActionListener(ev -> {
+                    btnMasDetalles.addActionListener(ev2 -> {
                         JDialog dialogoTecnico = new JDialog(ventanaDetalles, "Ficha técnica", true);
                         dialogoTecnico.setSize(400, 250);
                         dialogoTecnico.setLocationRelativeTo(ventanaDetalles);
@@ -145,7 +133,7 @@ public class VentanaInventario extends JFrame {
                         dialogoTecnico.add(panelFicha, BorderLayout.CENTER);
 
                         JButton btnCerrar = new JButton("Cerrar");
-                        btnCerrar.addActionListener(e2 -> dialogoTecnico.dispose());
+                        btnCerrar.addActionListener(e3 -> dialogoTecnico.dispose());
                         JPanel panelCerrar = new JPanel();
                         panelCerrar.add(btnCerrar);
 
@@ -163,10 +151,13 @@ public class VentanaInventario extends JFrame {
             }
         });
 
-        tabla.setRowHeight(25);
-        tabla.getTableHeader().setReorderingAllowed(false);
-        tabla.setFont(new Font("SansSerif", Font.PLAIN, 14));
-
         add(new JScrollPane(tabla), BorderLayout.CENTER);
+    }
+
+    // Actualizar coches en la tabla
+    public void actualizarTabla() {
+        GestorBD gestor = new GestorBD();
+        modelo.setCoches(gestor.obtenerCoches());
+        tabla.repaint();
     }
 }
