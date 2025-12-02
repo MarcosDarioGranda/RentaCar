@@ -12,14 +12,12 @@ public class VentanaPrincipal extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // 🔹 Título superior
         JLabel titulo = new JLabel("RentaCar", SwingConstants.CENTER);
         titulo.setFont(new Font("Segoe UI", Font.BOLD, 28));
         titulo.setForeground(new Color(40, 70, 130));
         titulo.setBorder(BorderFactory.createEmptyBorder(15, 0, 15, 0));
         add(titulo, BorderLayout.NORTH);
 
-        // 🔹 Panel central con texto + imagen
         JPanel panelCentro = new JPanel(new BorderLayout());
         panelCentro.setBackground(Color.WHITE);
 
@@ -38,7 +36,6 @@ public class VentanaPrincipal extends JFrame {
 
         add(panelCentro, BorderLayout.CENTER);
 
-        // 🔹 Barra de menú
         JMenuBar menuBar = new JMenuBar();
 
         JMenu menuCoches = new JMenu("Coches");
@@ -49,22 +46,20 @@ public class VentanaPrincipal extends JFrame {
         JMenuItem itemVender = new JMenuItem("Registrar Venta");
         JMenuItem itemSalir = new JMenuItem("Salir");
 
-        // 🔹 Crear ventana inventario
         VentanaInventario ventanaInventario = new VentanaInventario();
 
-        // Acciones
         itemVer.addActionListener(e -> ventanaInventario.setVisible(true));
         itemAgregar.addActionListener(e -> new VentanaAgregarCoche(ventanaInventario).setVisible(true));
-        itemVender.addActionListener(e -> JOptionPane.showMessageDialog(this,"Funcionalidad no implementada aún."));
+
+        itemVender.addActionListener(e -> new VentanaRegistrarVenta().setVisible(true));
+
         itemSalir.addActionListener(e -> System.exit(0));
 
-        // Añadir ítems
         menuCoches.add(itemVer);
         menuCoches.add(itemAgregar);
         menuCoches.add(itemVender);
         menuSistema.add(itemSalir);
 
-        // Añadir menús
         menuBar.add(menuCoches);
         menuBar.add(menuSistema);
 

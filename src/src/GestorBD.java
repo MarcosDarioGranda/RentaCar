@@ -9,46 +9,19 @@ public class GestorBD {
     private static final String DRIVER_NAME = "org.sqlite.JDBC";
     private static final String CONNECTION_STRING = "jdbc:sqlite:RentaCar.db";
 
-
     public GestorBD() {
         try {
             System.out.println("Intentando cargar driver SQLite...");
             Class.forName(DRIVER_NAME);
             System.out.println("Driver SQLite cargado correctamente.");
         } catch (ClassNotFoundException e) {
-            System.err.println("ERROR: No se pudo cargar el driver SQLite. Clase no encontrada.");
-            e.printStackTrace();
-            return;
-        }
-
-        try {
-            System.out.println("Creando tabla USUARIOS...");
-            crearTablaUsuarios();
-            System.out.println("Tabla USUARIOS creada o ya existía.");
-        } catch (Exception e) {
-            System.err.println("ERROR al crear tabla USUARIOS:");
+            System.err.println("ERROR: No se pudo cargar el driver SQLite.");
             e.printStackTrace();
         }
 
-        try {
-            System.out.println("Creando tabla COCHES...");
-            crearTablaCoches();
-            System.out.println("Tabla COCHES creada o ya existía.");
-        } catch (Exception e) {
-            System.err.println("ERROR al crear tabla COCHES:");
-            e.printStackTrace();
-        }
-
-        try {
-            System.out.println("Creando tabla VENTAS...");
-            crearTablaVentas();
-            System.out.println("Tabla VENTAS creada o ya existía.");
-        } catch (Exception e) {
-            System.err.println("ERROR al crear tabla VENTAS:");
-            e.printStackTrace();
-        }
-        
-       
+        crearTablaUsuarios();
+        crearTablaCoches();
+        crearTablaVentas();
     }
 
     // ----------------- TABLAS -----------------
@@ -61,7 +34,6 @@ public class GestorBD {
              Statement stmt = con.createStatement()) {
             stmt.execute(sql);
         } catch (SQLException e) {
-            System.err.println("SQLException en crearTablaUsuarios:");
             e.printStackTrace();
         }
     }
@@ -77,7 +49,6 @@ public class GestorBD {
              Statement stmt = con.createStatement()) {
             stmt.execute(sql);
         } catch (SQLException e) {
-            System.err.println("SQLException en crearTablaCoches:");
             e.printStackTrace();
         }
     }
@@ -96,7 +67,6 @@ public class GestorBD {
              Statement stmt = con.createStatement()) {
             stmt.execute(sql);
         } catch (SQLException e) {
-            System.err.println("SQLException en crearTablaVentas:");
             e.printStackTrace();
         }
     }
@@ -106,13 +76,13 @@ public class GestorBD {
         String sql = "INSERT INTO USUARIOS(USUARIO, CONTRASENA) VALUES (?, ?);";
         try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
              PreparedStatement pstmt = con.prepareStatement(sql)) {
+
             pstmt.setString(1, usuario);
             pstmt.setString(2, contrasena);
             pstmt.executeUpdate();
             return true;
+
         } catch (SQLException e) {
-            System.err.println("Error al insertar usuario:");
-            e.printStackTrace();
             return false;
         }
     }
@@ -131,7 +101,6 @@ public class GestorBD {
             return existe;
 
         } catch (SQLException e) {
-            System.err.println("Error al validar usuario:");
             e.printStackTrace();
             return false;
         }
@@ -142,6 +111,7 @@ public class GestorBD {
         String sql = "INSERT INTO COCHES(MATRICULA, MARCA, MODELO, ANIO, PRECIO) VALUES (?, ?, ?, ?, ?);";
         try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
              PreparedStatement pstmt = con.prepareStatement(sql)) {
+
             pstmt.setString(1, c.getMatricula());
             pstmt.setString(2, c.getMarca());
             pstmt.setString(3, c.getModelo());
@@ -149,9 +119,8 @@ public class GestorBD {
             pstmt.setDouble(5, c.getPrecio());
             pstmt.executeUpdate();
             return true;
+
         } catch (SQLException e) {
-            System.err.println("Error al insertar coche:");
-            e.printStackTrace();
             return false;
         }
     }
@@ -161,6 +130,7 @@ public class GestorBD {
         String sql = "SELECT * FROM COCHES;";
         try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
              PreparedStatement pstmt = con.prepareStatement(sql)) {
+
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 lista.add(new Coche(
@@ -172,11 +142,26 @@ public class GestorBD {
                 ));
             }
             rs.close();
+
         } catch (SQLException e) {
-            System.err.println("Error al obtener coches:");
             e.printStackTrace();
         }
         return lista;
+    }
+
+    // Eliminar coche de la BD
+    public boolean eliminarCoche(String matricula) {
+        String sql = "DELETE FROM COCHES WHERE MATRICULA = ?;";
+        try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, matricula);
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     // ----------------- VENTAS -----------------
@@ -194,13 +179,8 @@ public class GestorBD {
             return true;
 
         } catch (SQLException e) {
-            System.err.println("Error al registrar venta:");
             e.printStackTrace();
             return false;
         }
     }
-    
-
-
-
 }
