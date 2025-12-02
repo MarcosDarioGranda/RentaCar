@@ -1,6 +1,7 @@
 package src;
 
 import javax.swing.*;
+
 import java.awt.*;
 
 public class VentanaAgregarCoche extends JFrame {
@@ -65,7 +66,7 @@ public class VentanaAgregarCoche extends JFrame {
         panelPrincipal.add(panelBotones, BorderLayout.SOUTH);
 
         btnGuardar.addActionListener(e -> {
-            String codigo = tCodigo.getText().trim();
+            String codigo = tCodigo.getText().trim().toUpperCase();
             String marca = tMarca.getText().trim();
             String modelo = tModelo.getText().trim();
             String anio = tAnio.getText().trim();
@@ -77,7 +78,10 @@ public class VentanaAgregarCoche extends JFrame {
             }
 
             if (!codigo.matches("\\d{4}[A-Z]{3}")) {
-                JOptionPane.showMessageDialog(this, "Matrícula inválida (ej: 1234ABC).", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, 
+                    "Matrícula inválida.\nFormato correcto: 1234ABC (4 números + 3 letras)", 
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -85,14 +89,34 @@ public class VentanaAgregarCoche extends JFrame {
                 int anioInt = Integer.parseInt(anio);
                 double precioDouble = Double.parseDouble(precio);
 
+                if (anioInt < 1900 || anioInt > 2025) {
+                    JOptionPane.showMessageDialog(this, "El año debe estar entre 1900 y 2025.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if (precioDouble <= 0) {
+                    JOptionPane.showMessageDialog(this, "El precio debe ser mayor que 0.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 Coche nuevo = new Coche(codigo, marca, modelo, anioInt, precioDouble);
                 GestorBD gestor = new GestorBD();
+                
                 if (gestor.insertarCoche(nuevo)) {
-                    JOptionPane.showMessageDialog(this, "Coche agregado correctamente.");
+                    JOptionPane.showMessageDialog(this, 
+                        "✓ Coche agregado correctamente:\n" +
+                        marca + " " + modelo + "\n" +
+                        "Matrícula: " + codigo,
+                        "Éxito",
+                        JOptionPane.INFORMATION_MESSAGE);
                     ventanaInventario.actualizarTabla();
                     dispose();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Ya existe un coche con esa matrícula.", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, 
+                        "✗ Ya existe un coche con la matrícula " + codigo + ".\n" +
+                        "Por favor, usa otra matrícula.",
+                        "Error", 
+                        JOptionPane.ERROR_MESSAGE);
                 }
 
             } catch (NumberFormatException ex) {

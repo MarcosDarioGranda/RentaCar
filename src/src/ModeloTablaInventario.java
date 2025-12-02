@@ -1,6 +1,7 @@
 package src;
 
 import javax.swing.table.AbstractTableModel;
+
 import java.util.List;
 
 public class ModeloTablaInventario extends AbstractTableModel {
@@ -51,6 +52,8 @@ public class ModeloTablaInventario extends AbstractTableModel {
     }
 
     public String getMatricula(int fila) {
-        return coches.get(fila).getMatricula();
+        String matricula = coches.get(fila).getMatricula();
+        System.out.println("DEBUG - Matrícula obtenida de fila " + fila + ": '" + matricula + "'");
+        return matricula;
     }
 }
