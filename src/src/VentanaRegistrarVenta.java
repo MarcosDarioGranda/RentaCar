@@ -56,10 +56,12 @@ public class VentanaRegistrarVenta extends JFrame {
         btnRegistrar.setBackground(new Color(72, 201, 176));
         btnRegistrar.setForeground(Color.WHITE);
         btnRegistrar.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnRegistrar.setFocusPainted(false);
 
         btnCancelar.setBackground(new Color(231, 76, 60));
         btnCancelar.setForeground(Color.WHITE);
         btnCancelar.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnCancelar.setFocusPainted(false);
 
         panelBotones.add(btnRegistrar);
         panelBotones.add(btnCancelar);
@@ -79,26 +81,66 @@ public class VentanaRegistrarVenta extends JFrame {
                         "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
+            if (!matricula.matches("\\d{4}[A-Z]{3}")) {
+                JOptionPane.showMessageDialog(this, 
+                        "Matrícula inválida. Formato correcto: 1234ABC",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            if (!dni.matches("\\d{8}[A-Z]")) {
+                JOptionPane.showMessageDialog(this, 
+                        "DNI inválido. Formato correcto: 12345678A",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
             try {
                 double importe = Double.parseDouble(importeStr);
+                
+                if (importe <= 0) {
+                    JOptionPane.showMessageDialog(this,
+                            "El importe debe ser mayor que 0.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                Coche coche = gestor.buscarCochePorMatricula(matricula);
+                if (coche == null) {
+                    JOptionPane.showMessageDialog(this,
+                            "No existe un coche con la matrícula '" + matricula + "'.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                int confirmacion = JOptionPane.showConfirmDialog(this,
+                        "¿Confirmar venta del vehículo " + coche.getMarca() + " " + coche.getModelo() + 
+                        "\npor " + importe + "€ a " + cliente + "?",
+                        "Confirmar venta",
+                        JOptionPane.YES_NO_OPTION);
 
+                if (confirmacion != JOptionPane.YES_OPTION) {
+                    return;
+                }
                 Venta venta = new Venta(matricula, cliente, vehiculo, dni, importe);
 
                 if (gestor.registrarVenta(venta)) {
-
-                    gestor.eliminarCoche(matricula);
-
                     JOptionPane.showMessageDialog(this,
-                            "Venta registrada y coche eliminado del inventario.",
+                            "✓ Venta registrada correctamente\n✓ Coche eliminado del inventario",
                             "Éxito", JOptionPane.INFORMATION_MESSAGE);
-
+                    tCodigo.setText("");
+                    tCliente.setText("");
+                    tVehiculo.setText("");
+                    tDNI.setText("");
+                    tImporte.setText("");
+                    
                     dispose();
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "Error al registrar la venta. Por favor, inténtelo de nuevo.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
                 }
 
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this,
-                        "Importe inválido.",
+                        "Importe inválido. Debe ser un número.",
                         "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
