@@ -6,7 +6,11 @@ import java.awt.*;
 
 public class VentanaRegistrarVenta extends JFrame {
 
-    private final GestorBD gestor;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private final GestorBD gestor;
 
     public VentanaRegistrarVenta() {
         setTitle("Registrar Venta - RentaCar");

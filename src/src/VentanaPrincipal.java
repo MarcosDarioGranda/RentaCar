@@ -5,6 +5,12 @@ import javax.swing.*;
 import java.awt.*;
 
 public class VentanaPrincipal extends JFrame {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private VentanaInventario ventanaInventario;
 
     public VentanaPrincipal() {
         setTitle("RentaCar - Venta y Reventa de Coches");
@@ -47,10 +53,20 @@ public class VentanaPrincipal extends JFrame {
         JMenuItem itemVender = new JMenuItem("Registrar Venta");
         JMenuItem itemSalir = new JMenuItem("Salir");
 
-        VentanaInventario ventanaInventario = new VentanaInventario();
+        itemVer.addActionListener(e -> {
+            if (ventanaInventario == null) {
+                ventanaInventario = new VentanaInventario();
+            }
+            ventanaInventario.setVisible(true);
+        });
+  
+        itemAgregar.addActionListener(e -> {
+            if (ventanaInventario == null) {
+                ventanaInventario = new VentanaInventario();
+            }
+            new VentanaAgregarCoche(ventanaInventario).setVisible(true);
+        });
 
-        itemVer.addActionListener(e -> ventanaInventario.setVisible(true));
-        itemAgregar.addActionListener(e -> new VentanaAgregarCoche(ventanaInventario).setVisible(true));
 
         itemVender.addActionListener(e -> new VentanaRegistrarVenta().setVisible(true));
 

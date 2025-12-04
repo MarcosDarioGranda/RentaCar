@@ -6,7 +6,11 @@ import java.util.List;
 
 public class ModeloTablaInventario extends AbstractTableModel {
 
-    private final String[] columnas = {"Marca", "Modelo", "Año", "Precio (€)", "Matrícula"};
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private final String[] columnas = {"Marca", "Modelo", "Año", "Precio (€)", "Matrícula"};
     private List<Coche> coches;
 
     public ModeloTablaInventario(List<Coche> coches) {

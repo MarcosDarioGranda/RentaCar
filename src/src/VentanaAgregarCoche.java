@@ -6,7 +6,12 @@ import java.awt.*;
 
 public class VentanaAgregarCoche extends JFrame {
 
-    public VentanaAgregarCoche(VentanaInventario ventanaInventario) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public VentanaAgregarCoche(VentanaInventario ventanaInventario) {
         setTitle("Agregar Coche - RentaCar");
         setSize(420, 380);
         setLocationRelativeTo(null);

@@ -10,18 +10,22 @@ import java.util.List;
 
 public class VentanaInventario extends JFrame {
 
-    private ModeloTablaInventario modelo;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private ModeloTablaInventario modelo;
     private JTable tabla;
 
     public VentanaInventario() {
         setTitle("Inventario - RentaCar");
-        setSize(600, 450);
+        setSize(900, 350);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         GestorBD gestor = new GestorBD();
         List<Coche> coches = gestor.obtenerCoches();
-
+        
         modelo = new ModeloTablaInventario(coches);
         tabla = new JTable(modelo);
 
@@ -30,7 +34,12 @@ public class VentanaInventario extends JFrame {
 
         // Renderer de colores según precio
         tabla.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
-            @Override
+            /**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
             public Component getTableCellRendererComponent(JTable table, Object value,
                                                            boolean isSelected, boolean hasFocus,
                                                            int row, int column) {
@@ -97,8 +106,6 @@ public class VentanaInventario extends JFrame {
 
         add(panelBotonesInferior, BorderLayout.SOUTH);
 
-        // Ajustar ventana al contenido
-        pack();
         setLocationRelativeTo(null);
         setVisible(true);
 
