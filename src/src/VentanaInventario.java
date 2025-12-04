@@ -15,7 +15,7 @@ public class VentanaInventario extends JFrame {
 
     public VentanaInventario() {
         setTitle("Inventario - RentaCar");
-        setSize(600, 350);
+        setSize(600, 450);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -73,7 +73,205 @@ public class VentanaInventario extends JFrame {
             }
         });
 
+        
+        
+        // ---------- Panel inferior con botones de modificación ----------
+
+        JButton btnModificarTodos = new JButton("Modificar todo (menos marca)");
+        JButton btnModificarModelo = new JButton("Modificar modelo");
+        JButton btnModificarAnio = new JButton("Modificar año");
+        JButton btnModificarPrecio = new JButton("Modificar precio");
+        JButton btnRefrescar = new JButton("Refrescar");
+
+        // ---------- Agregar tabla ----------
         add(new JScrollPane(tabla), BorderLayout.CENTER);
+
+        // ---------- Panel inferior con botones ----------
+        JPanel panelBotonesInferior = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        panelBotonesInferior.setPreferredSize(new Dimension(600, 60)); // Fija altura para que se vea
+        panelBotonesInferior.add(btnModificarTodos);
+        panelBotonesInferior.add(btnModificarModelo);
+        panelBotonesInferior.add(btnModificarAnio);
+        panelBotonesInferior.add(btnModificarPrecio);
+        panelBotonesInferior.add(btnRefrescar);
+
+        add(panelBotonesInferior, BorderLayout.SOUTH);
+
+        // Ajustar ventana al contenido
+        pack();
+        setLocationRelativeTo(null);
+        setVisible(true);
+
+        // ---------- Acciones de botones ----------
+
+        btnRefrescar.addActionListener(e -> actualizarTabla());
+
+        btnModificarTodos.addActionListener(e -> {
+            int viewRow = tabla.getSelectedRow();
+            if (viewRow == -1) {
+                JOptionPane.showMessageDialog(this, "Selecciona un coche en la tabla primero.", "Sin selección", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int modelRow = tabla.convertRowIndexToModel(viewRow);
+            String matricula = modelo.getMatricula(modelRow);
+            String marca = (String) tabla.getValueAt(viewRow, 0);
+
+            // Pedir nuevos valores: modelo, año, precio
+            JTextField tModelo = new JTextField();
+            JTextField tAnio = new JTextField();
+            JTextField tPrecio = new JTextField();
+
+            tModelo.setText(tabla.getValueAt(viewRow, 1).toString());
+            tAnio.setText(tabla.getValueAt(viewRow, 2).toString());
+            tPrecio.setText(tabla.getValueAt(viewRow, 3).toString());
+
+            JPanel p = new JPanel(new GridLayout(0, 1));
+            p.add(new JLabel("Marca (no editable): " + marca));
+            p.add(new JLabel("Modelo:"));
+            p.add(tModelo);
+            p.add(new JLabel("Año:"));
+            p.add(tAnio);
+            p.add(new JLabel("Precio (€):"));
+            p.add(tPrecio);
+
+            int res = JOptionPane.showConfirmDialog(this, p,
+                    "Modificar todo (excepto marca) - " + matricula,
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+            if (res == JOptionPane.OK_OPTION) {
+                String nuevoModelo = tModelo.getText().trim();
+                String sAnio = tAnio.getText().trim();
+                String sPrecio = tPrecio.getText().trim();
+
+                if (nuevoModelo.isEmpty() || sAnio.isEmpty() || sPrecio.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Rellena todos los campos.", "Campos vacíos", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                int nuevoAnio;
+                double nuevoPrecio;
+                try {
+                    nuevoAnio = Integer.parseInt(sAnio);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Año inválido.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                try {
+                    nuevoPrecio = Double.parseDouble(sPrecio);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Precio inválido.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                GestorBD gestorBD = new GestorBD();
+                boolean ok = gestorBD.actualizarCocheExceptoMarca(matricula, nuevoModelo, nuevoAnio, nuevoPrecio);
+                if (ok) {
+                    JOptionPane.showMessageDialog(this, "Coche actualizado correctamente.");
+                    actualizarTabla();
+                } else {
+                    JOptionPane.showMessageDialog(this, "No se pudo actualizar el coche.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        btnModificarModelo.addActionListener(e -> {
+            int viewRow = tabla.getSelectedRow();
+            if (viewRow == -1) {
+                JOptionPane.showMessageDialog(this, "Selecciona un coche primero.", "Sin selección", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int modelRow = tabla.convertRowIndexToModel(viewRow);
+            String matricula = modelo.getMatricula(modelRow);
+
+            String current = tabla.getValueAt(viewRow, 1).toString();
+            String nuevo = JOptionPane.showInputDialog(this, "Nuevo modelo:", current);
+            if (nuevo != null) {
+                nuevo = nuevo.trim();
+                if (nuevo.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Modelo vacío.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                GestorBD gestorBD = new GestorBD();
+                boolean ok = gestorBD.actualizarModelo(matricula, nuevo);
+                if (ok) {
+                    JOptionPane.showMessageDialog(this, "Modelo actualizado.");
+                    actualizarTabla();
+                } else {
+                    JOptionPane.showMessageDialog(this, "No se pudo actualizar el modelo.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        btnModificarAnio.addActionListener(e -> {
+            int viewRow = tabla.getSelectedRow();
+            if (viewRow == -1) {
+                JOptionPane.showMessageDialog(this, "Selecciona un coche primero.", "Sin selección", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int modelRow = tabla.convertRowIndexToModel(viewRow);
+            String matricula = modelo.getMatricula(modelRow);
+
+            String current = tabla.getValueAt(viewRow, 2).toString();
+            String nuevoStr = JOptionPane.showInputDialog(this, "Nuevo año:", current);
+            if (nuevoStr != null) {
+                nuevoStr = nuevoStr.trim();
+                if (nuevoStr.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Año vacío.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                int nuevoAnio;
+                try {
+                    nuevoAnio = Integer.parseInt(nuevoStr);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Año inválido.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                GestorBD gestorBD = new GestorBD();
+                boolean ok = gestorBD.actualizarAnio(matricula, nuevoAnio);
+                if (ok) {
+                    JOptionPane.showMessageDialog(this, "Año actualizado.");
+                    actualizarTabla();
+                } else {
+                    JOptionPane.showMessageDialog(this, "No se pudo actualizar el año.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        btnModificarPrecio.addActionListener(e -> {
+            int viewRow = tabla.getSelectedRow();
+            if (viewRow == -1) {
+                JOptionPane.showMessageDialog(this, "Selecciona un coche primero.", "Sin selección", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int modelRow = tabla.convertRowIndexToModel(viewRow);
+            String matricula = modelo.getMatricula(modelRow);
+
+            String current = tabla.getValueAt(viewRow, 3).toString();
+            String nuevoStr = JOptionPane.showInputDialog(this, "Nuevo precio (€):", current);
+            if (nuevoStr != null) {
+                nuevoStr = nuevoStr.trim();
+                if (nuevoStr.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Precio vacío.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                double nuevoPrecio;
+                try {
+                    nuevoPrecio = Double.parseDouble(nuevoStr);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Precio inválido.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                GestorBD gestorBD = new GestorBD();
+                boolean ok = gestorBD.actualizarPrecio(matricula, nuevoPrecio);
+                if (ok) {
+                    JOptionPane.showMessageDialog(this, "Precio actualizado.");
+                    actualizarTabla();
+                } else {
+                    JOptionPane.showMessageDialog(this, "No se pudo actualizar el precio.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
     }
 
     // ============================

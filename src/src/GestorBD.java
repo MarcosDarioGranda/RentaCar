@@ -385,4 +385,92 @@ public class GestorBD {
             return false; 
         }
     }
+
+
+    // ----------------- MODIFICAR DATOS INVENTARIO -----------------
+
+	public boolean actualizarCocheExceptoMarca(String matricula, String nuevoModelo, int nuevoAnio, double nuevoPrecio) {
+	    String sql = "UPDATE COCHES SET MODELO = ?, ANIO = ?, PRECIO = ? WHERE MATRICULA = ?";
+	    String matriculaNormalizada = normalizarMatricula(matricula);
+	
+	    try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+	         PreparedStatement ps = con.prepareStatement(sql)) {
+	
+	        ps.setString(1, nuevoModelo);
+	        ps.setInt(2, nuevoAnio);
+	        ps.setDouble(3, nuevoPrecio);
+	        ps.setString(4, matriculaNormalizada);
+	
+	        int updated = ps.executeUpdate();
+	        if (updated > 0) {
+	            System.out.println("✓ Coche actualizado (excepto marca): " + matriculaNormalizada);
+	            return true;
+	        } else {
+	            System.out.println("✗ No se encontró coche para actualizar: " + matriculaNormalizada);
+	            return false;
+	        }
+	
+	    } catch (SQLException e) {
+	        System.err.println("✗ Error al actualizar coche: " + e.getMessage());
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
+	
+	public boolean actualizarModelo(String matricula, String nuevoModelo) {
+	    String sql = "UPDATE COCHES SET MODELO = ? WHERE MATRICULA = ?";
+	    String matriculaNormalizada = normalizarMatricula(matricula);
+	
+	    try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+	         PreparedStatement ps = con.prepareStatement(sql)) {
+	
+	        ps.setString(1, nuevoModelo);
+	        ps.setString(2, matriculaNormalizada);
+	
+	        int updated = ps.executeUpdate();
+	        return updated > 0;
+	
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
+	
+	public boolean actualizarAnio(String matricula, int nuevoAnio) {
+	    String sql = "UPDATE COCHES SET ANIO = ? WHERE MATRICULA = ?";
+	    String matriculaNormalizada = normalizarMatricula(matricula);
+	
+	    try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+	         PreparedStatement ps = con.prepareStatement(sql)) {
+	
+	        ps.setInt(1, nuevoAnio);
+	        ps.setString(2, matriculaNormalizada);
+	
+	        int updated = ps.executeUpdate();
+	        return updated > 0;
+	
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
+	
+	public boolean actualizarPrecio(String matricula, double nuevoPrecio) {
+	    String sql = "UPDATE COCHES SET PRECIO = ? WHERE MATRICULA = ?";
+	    String matriculaNormalizada = normalizarMatricula(matricula);
+	
+	    try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+	         PreparedStatement ps = con.prepareStatement(sql)) {
+	
+	        ps.setDouble(1, nuevoPrecio);
+	        ps.setString(2, matriculaNormalizada);
+	
+	        int updated = ps.executeUpdate();
+	        return updated > 0;
+	
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
 }

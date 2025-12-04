@@ -8,7 +8,12 @@ import java.awt.event.KeyEvent;
 
 public class VentanaLogin extends JFrame {
 
-    public VentanaLogin() {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public VentanaLogin() {
         setTitle("Login - RentaCar");
         setSize(420, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
