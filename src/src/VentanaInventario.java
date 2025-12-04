@@ -322,13 +322,16 @@ public class VentanaInventario extends JFrame {
                             : new ImageIcon(getClass().getResource("/img/default.jpg"));
 
                     Image img = icon.getImage().getScaledInstance(250, 180, Image.SCALE_SMOOTH);
-                    lblImagen.setIcon(new ImageIcon(img));
+
+                    SwingUtilities.invokeLater(() -> lblImagen.setIcon(new ImageIcon(img)));
 
                     index++;
                     if (index > 3) index = 1;
                     Thread.sleep(2000);
 
-                } catch (Exception ex) { ex.printStackTrace(); }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
         });
 
