@@ -364,6 +364,30 @@ public class GestorBD {
             return false; 
         }
     }
+    
+    public boolean actualizarFichaTecnica(String matricula, String cilindrada, String potencia, String consumo, String batalla, String transmision) {
+
+		String sql = "UPDATE FICHA_TECNICA SET CILINDRADA=?, POTENCIA=?, CONSUMO=?, BATALLA=?, TRANSMISION=? " + "WHERE MATRICULA=?";
+		String mat = normalizarMatricula(matricula);
+			
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+			PreparedStatement ps = con.prepareStatement(sql)) {
+			
+			ps.setString(1, cilindrada);
+			ps.setString(2, potencia);
+			ps.setString(3, consumo);
+			ps.setString(4, batalla);
+			ps.setString(5, transmision);
+			ps.setString(6, mat);
+			
+			int updated = ps.executeUpdate();
+			return updated > 0;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 
     // ----------------- VENTAS -----------------
 

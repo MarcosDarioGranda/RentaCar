@@ -396,38 +396,98 @@ public class VentanaInventario extends JFrame {
         FichaTecnica ficha = gestor.obtenerFicha(matricula);
 
         if (ficha == null) {
-            JOptionPane.showMessageDialog(parent, 
-                "Este coche no tiene ficha técnica registrada.\n" +
-                "Usa el botón 'Crear ficha técnica' para añadir una.",
-                "Sin ficha técnica",
-                JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(parent,
+                    "Este coche no tiene ficha técnica registrada.\n" +
+                    "Usa el botón 'Crear ficha técnica' para añadir una.",
+                    "Sin ficha técnica",
+                    JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
         JDialog dialogo = new JDialog(parent, "Ficha técnica - " + matricula, true);
-        dialogo.setSize(400, 250);
+        dialogo.setSize(400, 300);
         dialogo.setLocationRelativeTo(parent);
         dialogo.setLayout(new BorderLayout());
 
-        JPanel fichaPanel = new JPanel(new GridLayout(5, 1, 5, 5));
+        JTextField txtCilindrada = new JTextField(ficha.getCilindrada());
+        JTextField txtPotencia = new JTextField(ficha.getPotencia());
+        JTextField txtConsumo = new JTextField(ficha.getConsumo());
+        JTextField txtBatalla = new JTextField(ficha.getBatalla());
+        JTextField txtTransmision = new JTextField(ficha.getTransmision());
+
+        txtCilindrada.setEditable(false);
+        txtPotencia.setEditable(false);
+        txtConsumo.setEditable(false);
+        txtBatalla.setEditable(false);
+        txtTransmision.setEditable(false);
+
+        JPanel fichaPanel = new JPanel(new GridLayout(5, 2, 5, 5));
         fichaPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        fichaPanel.add(new JLabel("Cilindrada: " + ficha.getCilindrada()));
-        fichaPanel.add(new JLabel("Potencia: " + ficha.getPotencia()));
-        fichaPanel.add(new JLabel("Consumo: " + ficha.getConsumo()));
-        fichaPanel.add(new JLabel("Batalla: " + ficha.getBatalla()));
-        fichaPanel.add(new JLabel("Transmisión: " + ficha.getTransmision()));
+        fichaPanel.add(new JLabel("Cilindrada: "));
+        fichaPanel.add(txtCilindrada);
+
+        fichaPanel.add(new JLabel("Potencia: "));
+        fichaPanel.add(txtPotencia);
+
+        fichaPanel.add(new JLabel("Consumo: "));
+        fichaPanel.add(txtConsumo);
+
+        fichaPanel.add(new JLabel("Batalla: "));
+        fichaPanel.add(txtBatalla);
+
+        fichaPanel.add(new JLabel("Transmisión: "));
+        fichaPanel.add(txtTransmision);
 
         JButton btnCerrar = new JButton("Cerrar");
         btnCerrar.addActionListener(e -> dialogo.dispose());
 
-        JPanel panelCerrar = new JPanel();
-        panelCerrar.add(btnCerrar);
+        JButton btnModificar = new JButton("Modificar");
+
+        btnModificar.addActionListener(e -> {
+
+            if (btnModificar.getText().equals("Modificar")) {
+                txtCilindrada.setEditable(true);
+                txtPotencia.setEditable(true);
+                txtConsumo.setEditable(true);
+                txtBatalla.setEditable(true);
+                txtTransmision.setEditable(true);
+                btnModificar.setText("Guardar");
+            }
+            else {
+                boolean ok = gestor.actualizarFichaTecnica(
+                        matricula,
+                        txtCilindrada.getText(),
+                        txtPotencia.getText(),
+                        txtConsumo.getText(),
+                        txtBatalla.getText(),
+                        txtTransmision.getText()
+                );
+
+                if (ok) {
+                    JOptionPane.showMessageDialog(dialogo,
+                            "Ficha técnica actualizada correctamente.");
+                    dialogo.dispose();
+                } else {
+                    JOptionPane.showMessageDialog(dialogo,
+                            "Error al actualizar la ficha técnica.",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        JPanel panelBotones = new JPanel();
+        panelBotones.add(btnModificar);
+        panelBotones.add(btnCerrar);
 
         dialogo.add(fichaPanel, BorderLayout.CENTER);
-        dialogo.add(panelCerrar, BorderLayout.SOUTH);
+        dialogo.add(panelBotones, BorderLayout.SOUTH);
         dialogo.setVisible(true);
     }
+
+    
+    
 
     // ============================
     //   CREAR FICHA TÉCNICA NUEVA
@@ -545,7 +605,10 @@ public class VentanaInventario extends JFrame {
                         "Error al guardar",
                         JOptionPane.ERROR_MESSAGE);
             }
+            
         });
+        
+        
 
         dialogo.setVisible(true);
     }
