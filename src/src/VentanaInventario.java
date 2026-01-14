@@ -6,7 +6,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class VentanaInventario extends JFrame {
 
@@ -16,6 +18,7 @@ public class VentanaInventario extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private ModeloTablaInventario modelo;
     private JTable tabla;
+    private GestorBD gestor;
 
     public VentanaInventario() {
         setTitle("Inventario - RentaCar");
@@ -23,7 +26,7 @@ public class VentanaInventario extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        GestorBD gestor = new GestorBD();
+        gestor = new GestorBD();
         List<Coche> coches = gestor.obtenerCoches();
         
         modelo = new ModeloTablaInventario(coches);
@@ -91,6 +94,7 @@ public class VentanaInventario extends JFrame {
         JButton btnModificarAnio = new JButton("Modificar año");
         JButton btnModificarPrecio = new JButton("Modificar precio");
         JButton btnRefrescar = new JButton("Refrescar");
+        JButton btnPrecioMarcas = new JButton("Precio de marcas");
 
         // ---------- Agregar tabla ----------
         add(new JScrollPane(tabla), BorderLayout.CENTER);
@@ -103,6 +107,7 @@ public class VentanaInventario extends JFrame {
         panelBotonesInferior.add(btnModificarAnio);
         panelBotonesInferior.add(btnModificarPrecio);
         panelBotonesInferior.add(btnRefrescar);
+        panelBotonesInferior.add(btnPrecioMarcas);
 
         add(panelBotonesInferior, BorderLayout.SOUTH);
 
@@ -170,8 +175,7 @@ public class VentanaInventario extends JFrame {
                     return;
                 }
 
-                GestorBD gestorBD = new GestorBD();
-                boolean ok = gestorBD.actualizarCocheExceptoMarca(matricula, nuevoModelo, nuevoAnio, nuevoPrecio);
+                boolean ok = gestor.actualizarCocheExceptoMarca(matricula, nuevoModelo, nuevoAnio, nuevoPrecio);
                 if (ok) {
                     JOptionPane.showMessageDialog(this, "Coche actualizado correctamente.");
                     actualizarTabla();
@@ -198,8 +202,7 @@ public class VentanaInventario extends JFrame {
                     JOptionPane.showMessageDialog(this, "Modelo vacío.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                GestorBD gestorBD = new GestorBD();
-                boolean ok = gestorBD.actualizarModelo(matricula, nuevo);
+                boolean ok = gestor.actualizarModelo(matricula, nuevo);
                 if (ok) {
                     JOptionPane.showMessageDialog(this, "Modelo actualizado.");
                     actualizarTabla();
@@ -233,8 +236,7 @@ public class VentanaInventario extends JFrame {
                     JOptionPane.showMessageDialog(this, "Año inválido.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                GestorBD gestorBD = new GestorBD();
-                boolean ok = gestorBD.actualizarAnio(matricula, nuevoAnio);
+                boolean ok = gestor.actualizarAnio(matricula, nuevoAnio);
                 if (ok) {
                     JOptionPane.showMessageDialog(this, "Año actualizado.");
                     actualizarTabla();
@@ -268,8 +270,7 @@ public class VentanaInventario extends JFrame {
                     JOptionPane.showMessageDialog(this, "Precio inválido.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                GestorBD gestorBD = new GestorBD();
-                boolean ok = gestorBD.actualizarPrecio(matricula, nuevoPrecio);
+                boolean ok = gestor.actualizarPrecio(matricula, nuevoPrecio);
                 if (ok) {
                     JOptionPane.showMessageDialog(this, "Precio actualizado.");
                     actualizarTabla();
@@ -278,6 +279,8 @@ public class VentanaInventario extends JFrame {
                 }
             }
         });
+        
+        btnPrecioMarcas.addActionListener(e -> mostrarPrecioPorMarcas());
 
     }
 
@@ -362,7 +365,7 @@ public class VentanaInventario extends JFrame {
             );
 
             if (confirmacion == JOptionPane.YES_OPTION) {
-                GestorBD gestor = new GestorBD();
+                gestor = new GestorBD();
                 if (gestor.eliminarFichaTecnica(matricula)) {
                     JOptionPane.showMessageDialog(ventanaDetalles, 
                         "Ficha técnica eliminada correctamente.");
@@ -608,17 +611,75 @@ public class VentanaInventario extends JFrame {
             
         });
         
-        
-
         dialogo.setVisible(true);
     }
+    
+    
+    // ============================
+    //	     RECURSIVIDAD
+    // ============================
+    
+    private void calcularPrecioMarcasRecursivo(List<Coche> coches,int index,Map<String, Double> resultado) {
+    	
+        if (index == coches.size()) {
+            return;
+        }
+
+        Coche coche = coches.get(index);
+        String marca = coche.getMarca();
+        double precio = coche.getPrecio();
+
+        resultado.put(marca,resultado.getOrDefault(marca, 0.0) + precio);
+
+        calcularPrecioMarcasRecursivo(coches, index + 1, resultado);
+    }
+
+    // ============================
+    //		VENTANA RECURSIVIDAD
+    // ============================
+    
+    private void mostrarPrecioPorMarcas() {
+
+        List<Coche> coches = gestor.obtenerCoches();
+
+        Map<String, Double> preciosPorMarca = new LinkedHashMap<>();
+
+        calcularPrecioMarcasRecursivo(coches, 0, preciosPorMarca);
+
+        JDialog dialogo = new JDialog(this, "Precio total por marcas", true);
+        dialogo.setSize(400, 300);
+        dialogo.setLocationRelativeTo(this);
+        dialogo.setLayout(new BorderLayout());
+
+        JPanel panel = new JPanel(new GridLayout(preciosPorMarca.size(), 1, 5, 5));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        for (String marca : preciosPorMarca.keySet()) {
+            double total = preciosPorMarca.get(marca);
+            panel.add(new JLabel(
+                    "• " + marca + ": " + String.format("%.2f", total) + " €"
+            ));
+        }
+
+        JButton btnCerrar = new JButton("Cerrar");
+        btnCerrar.addActionListener(e -> dialogo.dispose());
+
+        JPanel panelBoton = new JPanel();
+        panelBoton.add(btnCerrar);
+
+        dialogo.add(panel, BorderLayout.CENTER);
+        dialogo.add(panelBoton, BorderLayout.SOUTH);
+        dialogo.setVisible(true);
+    }
+
+    
+    
 
     // ============================
     //   ACTUALIZAR TABLA
     // ============================
 
     public void actualizarTabla() {
-        GestorBD gestor = new GestorBD();
         modelo.setCoches(gestor.obtenerCoches());
         tabla.repaint();
     }
