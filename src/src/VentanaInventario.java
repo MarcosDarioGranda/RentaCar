@@ -6,6 +6,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,6 +111,59 @@ public class VentanaInventario extends JFrame {
         panelBotonesInferior.add(btnPrecioMarcas);
 
         add(panelBotonesInferior, BorderLayout.SOUTH);
+        
+        // ---------------- HILO QUE CAMBIA COLORES DE LOS BOTONES ----------------
+        // este hilo cambia el color de los botones cada 1 segundo, si no hay nada seleccionado alterna entre blanco y gris
+        // en el momento en el que se selecciona una fila se cambian los colores, alternando entre blanco y el color que indica el precio
+        Thread hiloColores = new Thread(() -> {
+            Color blanco = Color.WHITE;
+            Color gris = new Color(220, 220, 220);
+
+            while (true) {
+                SwingUtilities.invokeLater(() -> {
+                    int filaSeleccionada = tabla.getSelectedRow();
+                    Color colorBase;
+
+                    if (filaSeleccionada != -1) {
+                        Component comp = tabla.getCellRenderer(filaSeleccionada, 0)
+                                .getTableCellRendererComponent(
+                                        tabla,
+                                        tabla.getValueAt(filaSeleccionada, 0),
+                                        false,
+                                        false,
+                                        filaSeleccionada,
+                                        0
+                                );
+                        colorBase = comp.getBackground();
+                    } else {
+                        colorBase = gris;
+                    }
+
+                    for (Component c : panelBotonesInferior.getComponents()) {
+                        if (c instanceof JButton) {
+                            JButton btn = (JButton) c;
+                            if (btn.getBackground().equals(blanco)) {
+                                btn.setBackground(colorBase);
+                            } else {
+                                btn.setBackground(blanco);
+                            }
+                            btn.setForeground(Color.BLACK);
+                        }
+                    }
+                });
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    break;
+                }
+            }
+        });
+
+        hiloColores.start();
+
+
 
         setLocationRelativeTo(null);
         setVisible(true);
@@ -312,31 +366,19 @@ public class VentanaInventario extends JFrame {
         JLabel lblImagen = new JLabel("", SwingConstants.CENTER);
         lblImagen.setPreferredSize(new Dimension(250, 200));
 
-        // Hilo imágenes
-        Thread hiloImagenes = new Thread(() -> {
-            int index = 1;
-            while (ventanaDetalles.isVisible()) {
-                try {
-                    String ruta = "/img/" + matricula + "_" + index + ".jpg";
-                    java.net.URL url = getClass().getResource(ruta);
+        String rutaImagen = "src/img/" + matricula + ".jpg";
 
-                    ImageIcon icon = (url != null)
-                            ? new ImageIcon(url)
-                            : new ImageIcon(getClass().getResource("/img/default.jpg"));
+        File archivoImagen = new File(rutaImagen);
+        ImageIcon icon;
 
-                    Image img = icon.getImage().getScaledInstance(250, 180, Image.SCALE_SMOOTH);
+        if (archivoImagen.exists()) {
+            icon = new ImageIcon(rutaImagen);
+        } else {
+            icon = new ImageIcon("src/img/default.jpg");
+        }
 
-                    SwingUtilities.invokeLater(() -> lblImagen.setIcon(new ImageIcon(img)));
-
-                    index++;
-                    if (index > 3) index = 1;
-                    Thread.sleep(2000);
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
+        Image img = icon.getImage().getScaledInstance(200, 150, Image.SCALE_SMOOTH);
+        lblImagen.setIcon(new ImageIcon(img));
 
         // PANEL BOTONES
         JPanel panelBoton = new JPanel();
@@ -383,7 +425,7 @@ public class VentanaInventario extends JFrame {
         ventanaDetalles.add(panelBoton, BorderLayout.SOUTH);
 
         ventanaDetalles.setVisible(true);
-        hiloImagenes.start();
+        
     }
 
     // ============================
@@ -626,7 +668,7 @@ public class VentanaInventario extends JFrame {
         }
 
         Coche coche = coches.get(index);
-        String marca = coche.getMarca();
+        String marca = coche.getMarca().toUpperCase();
         double precio = coche.getPrecio();
 
         resultado.put(marca,resultado.getOrDefault(marca, 0.0) + precio);
