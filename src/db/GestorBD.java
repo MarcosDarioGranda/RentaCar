@@ -1,8 +1,12 @@
-package src;
+package db;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import gui.Coche;
+import gui.FichaTecnica;
+import gui.Venta;
 
 public class GestorBD {
 

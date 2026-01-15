@@ -1,4 +1,4 @@
-package src;
+package gui;
 
 public class FichaTecnica {
 

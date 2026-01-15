@@ -1,7 +1,9 @@
-package src;
+package gui;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
+
+import db.GestorBD;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;

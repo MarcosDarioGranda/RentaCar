@@ -1,6 +1,8 @@
-package src;
+package gui;
 
 import javax.swing.*;
+
+import db.GestorBD;
 
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -118,7 +120,5 @@ public class VentanaLogin extends JFrame {
         add(panelPrincipal);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new VentanaLogin().setVisible(true));
-    }
+    
 }

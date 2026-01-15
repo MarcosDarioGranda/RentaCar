@@ -1,6 +1,8 @@
-package src;
+package gui;
 
 import javax.swing.*;
+
+import db.GestorBD;
 
 import java.awt.*;
 
